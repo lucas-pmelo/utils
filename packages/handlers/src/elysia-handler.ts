@@ -1,3 +1,4 @@
+import logger from "@lucas-pmelo/logger";
 import ClbError from "./errors/clb-error";
 
 export function createResponse<T>({ status, data }: { status: number; data: T }): Response {
@@ -16,8 +17,11 @@ export async function withErrorHandler<T>(
   } catch (error) {
     if (error && typeof error === "object" && (error as ClbError).isTreated) {
       const clbError = error as ClbError;
+      logger.warn({ err: clbError, message });
       return createResponse({ status: clbError.statusCode, data: clbError.toObject() });
     }
+
+    logger.error({ err: error, message });
     return createResponse({ status: 500, data: { error: message } });
   }
 }
